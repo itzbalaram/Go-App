@@ -38,14 +38,14 @@ func (c *ProductDB) Get(id string) (*models.Product, error) {
 	return product, nil
 }
 
-func (c *ProductDB) Create(contact *models.Product) (interface{}, error) {
+func (c *ProductDB) Create(product *models.Product) (interface{}, error) {
 	c.Client.(*gorm.DB).AutoMigrate(&models.Product{})
-	result := c.Client.(*gorm.DB).Create(contact)
+	result := c.Client.(*gorm.DB).Create(product)
 	if result.Error != nil {
 		fmt.Println("------------->", result.Error)
 		return nil, result.Error
 	}
-	return contact.ProductId, nil
+	return product, nil
 }
 
 func (c *ProductDB) Delete(id string) (interface{}, error) {

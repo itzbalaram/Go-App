@@ -4,8 +4,8 @@ import "ecomm/web-service-gin/models"
 
 type ICustomer interface {
 	GetAll() ([]models.Customer, error)
-	IfExists(email string) error
-	Get(string) (*models.Product, error)
-	Create(*models.Product) (interface{}, error)
+	Get(string) (*models.Customer, error)
+	Create(*models.Customer) (interface{}, error)
 	Delete(string) (interface{}, error)
+	IfExists(mobile string) error
 }

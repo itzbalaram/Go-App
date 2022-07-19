@@ -48,8 +48,10 @@ func main() {
 	}
 
 	pdb := &database.ProductDB{Client: db}
+	cdb := &database.CustomerDB{Client: db}
 	//cdb := &filedb.FileDB{}
 	productHandler := &h.ProductHandler{IProduct: pdb}
+	customerHandler := &h.CustomerHandler{ICustomer: cdb}
 
 	router := gin.Default()
 
@@ -58,13 +60,18 @@ func main() {
 			"message": "pong",
 		})
 	})
-
+	// Product APIs
 	router.GET("/product/products", productHandler.GetAllProducts())
-	router.GET("/product/get/:productid", productHandler.GetProductByID())
+	router.GET("/product/get/:id", productHandler.GetProductByID())
 	router.POST("/product/create", productHandler.CreateProduct())
-	router.DELETE("/product/delete/:productid", productHandler.DeleteContact())
+	router.DELETE("/product/delete/:id", productHandler.DeleteProduct())
+
+	// Customer APIs
+	router.GET("/customer/customers", customerHandler.GetAllCustomers())
+	router.GET("/customer/get/:id", customerHandler.GetCustomerByID())
+	router.POST("/customer/create", customerHandler.CreateCustomer())
+	router.DELETE("/customer/delete/:id", customerHandler.DeleteCustomer())
 
 	router.Run("localhost:9090")
 	// router.Run(PORT)
-
 }

@@ -7,59 +7,58 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 )
 
-type ProductHandler struct {
-	IProduct interfaces.IProduct
+type CustomerHandler struct {
+	ICustomer interfaces.ICustomer
 	// m        *messaging.ProduceMessage
 	//IMessage messaging.IMessage
 }
 
-// getProducts responds with the list of all products as JSON.
-func (ph *ProductHandler) GetAllProducts() func(c *gin.Context) {
+// GetAllCustomers responds with the list of all customers as JSON.
+func (ch *CustomerHandler) GetAllCustomers() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		var products []models.Product
-		products, err := ph.IProduct.GetAll()
-		glog.Info("products fetched :", products)
+		var customers []models.Customer
+		customers, err := ch.ICustomer.GetAll()
+		glog.Info("customers fetched :", customers)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status":  "fail",
-				"message": "error in fetching contact",
+				"message": "error in fetching customer",
 			})
 			glog.Errorln(err)
 			c.Abort()
 			return
 		}
-		if products == nil {
+		if customers == nil {
 			c.JSON(http.StatusNoContent, nil)
 			glog.Info("No content")
 			c.Abort()
 			return
 		}
-		c.JSON(http.StatusOK, products)
-		glog.Info("Product successfully fetched:", products)
+		c.JSON(http.StatusOK, customers)
+		glog.Info("Product successfully fetched:", customers)
 		c.Abort()
 	}
 }
 
-func (ph *ProductHandler) GetProductByID() func(*gin.Context) {
+func (ch *CustomerHandler) GetCustomerByID() func(*gin.Context) {
 	return func(c *gin.Context) {
-		if ph == nil || ph.IProduct == nil {
+		if ch == nil || ch.ICustomer == nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status":  "fail",
 				"message": "Error in the handler",
 			})
-			glog.Errorln("ProductHandler or IProduct is nil")
+			glog.Errorln("CustomerHandler or ICustomer is nil")
 			c.Abort()
 			return
 		}
 
 		id, ok := c.Params.Get("id")
-		glog.Info("productid fetched:", id)
+		glog.Info("customer id fetched:", id)
 
 		if !ok {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -80,37 +79,37 @@ func (ph *ProductHandler) GetProductByID() func(*gin.Context) {
 			c.Abort()
 			return
 		}
-		product, err := ph.IProduct.Get(id)
+		customer, err := ch.ICustomer.Get(id)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status":  "fail",
-				"message": "error in fetching product",
+				"message": "error in fetching customer",
 			})
 			glog.Errorln(err)
 			c.Abort()
 			return
 		}
-		if product == nil {
+		if customer == nil {
 			c.JSON(http.StatusNoContent, nil)
 			glog.Info("No content")
 			c.Abort()
 			return
 		}
 
-		c.JSON(http.StatusOK, *product)
-		glog.Info("Product successfully fetched:", *product)
+		c.JSON(http.StatusOK, *customer)
+		glog.Info("Customer successfully fetched:", *customer)
 		c.Abort()
 	}
 }
 
-func (ph *ProductHandler) CreateProduct() func(*gin.Context) {
+func (ch *CustomerHandler) CreateCustomer() func(*gin.Context) {
 	return func(c *gin.Context) {
-		if ph == nil || ph.IProduct == nil {
+		if ch == nil || ch.ICustomer == nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status":  "fail",
 				"message": "Error in the handler",
 			})
-			glog.Errorln("ProductHandler or IProduct is nil")
+			glog.Errorln("CustomerHandler or ICustomer is nil")
 			c.Abort()
 			return
 		}
@@ -127,8 +126,8 @@ func (ph *ProductHandler) CreateProduct() func(*gin.Context) {
 			return
 		}
 
-		product := &models.Product{}
-		err = json.Unmarshal(buf, product)
+		customer := &models.Customer{}
+		err = json.Unmarshal(buf, customer)
 
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -139,7 +138,7 @@ func (ph *ProductHandler) CreateProduct() func(*gin.Context) {
 			c.Abort()
 			return
 		}
-		err = product.Validate()
+		err = customer.Validate()
 
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -150,7 +149,7 @@ func (ph *ProductHandler) CreateProduct() func(*gin.Context) {
 			c.Abort()
 			return
 		}
-		if err := ph.IProduct.IfExists(product.Name); err != nil {
+		if err := ch.ICustomer.IfExists(customer.Mobile); err != nil {
 			err = nil
 			if err != nil {
 				c.JSON(http.StatusBadRequest, models.Response{Status: "fail", Message: err.Error()})
@@ -159,9 +158,8 @@ func (ph *ProductHandler) CreateProduct() func(*gin.Context) {
 				return
 			}
 		}
-		product.Status = "active"
-		product.LastModified = time.Now().UTC().String()
-		id, err := ph.IProduct.Create(product)
+		// customer.LastModified = time.Now().UTC().String()
+		id, err := ch.ICustomer.Create(customer)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status":  "fail",
@@ -179,19 +177,19 @@ func (ph *ProductHandler) CreateProduct() func(*gin.Context) {
 			"status":  "success",
 			"message": id,
 		})
-		glog.Info("Contact successfully created:", id)
+		glog.Info("Customer successfully created:", id)
 		c.Abort()
 	}
 }
 
-func (ph *ProductHandler) DeleteProduct() func(*gin.Context) {
+func (ch *CustomerHandler) DeleteCustomer() func(*gin.Context) {
 	return func(c *gin.Context) {
-		if ph == nil || ph.IProduct == nil {
+		if ch == nil || ch.ICustomer == nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status":  "fail",
 				"message": "Error in the handler",
 			})
-			glog.Errorln("ProductHandler or IProduct is nil")
+			glog.Errorln("CustomerHandler or ICustomer is nil")
 			c.Abort()
 			return
 		}
@@ -217,11 +215,11 @@ func (ph *ProductHandler) DeleteProduct() func(*gin.Context) {
 			c.Abort()
 			return
 		}
-		result, err := ph.IProduct.Delete(id)
+		result, err := ch.ICustomer.Delete(id)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status":  "fail",
-				"message": "error in deleting Product",
+				"message": "error in deleting customer",
 			})
 			glog.Errorln(err)
 			c.Abort()
@@ -240,7 +238,7 @@ func (ph *ProductHandler) DeleteProduct() func(*gin.Context) {
 			"status":  "success",
 			"message": fmt.Sprint(result, " record deleted"),
 		})
-		glog.Info("Product successfully deleted:", result)
+		glog.Info("Customer successfully deleted:", result)
 		c.Abort()
 	}
 }
