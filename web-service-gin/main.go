@@ -49,9 +49,11 @@ func main() {
 
 	pdb := &database.ProductDB{Client: db}
 	cdb := &database.CustomerDB{Client: db}
+	odb := &database.OrderDB{Client: db}
 	//cdb := &filedb.FileDB{}
 	productHandler := &h.ProductHandler{IProduct: pdb}
 	customerHandler := &h.CustomerHandler{ICustomer: cdb}
+	orderHandler := &h.OrderHandler{IOrder: odb}
 
 	router := gin.Default()
 
@@ -60,6 +62,13 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	// Order APIs
+	router.GET("/order/orders", orderHandler.GetAllOrders())
+	router.GET("/order/get/:id", orderHandler.GetOrderByID())
+	router.POST("/order/create", orderHandler.PlaceOrder())
+	router.DELETE("/order/delete/:id", orderHandler.CancelOrder())
+
 	// Product APIs
 	router.GET("/product/products", productHandler.GetAllProducts())
 	router.GET("/product/get/:id", productHandler.GetProductByID())

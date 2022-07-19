@@ -179,7 +179,7 @@ func (ph *ProductHandler) CreateProduct() func(*gin.Context) {
 			"status":  "success",
 			"message": id,
 		})
-		glog.Info("Contact successfully created:", id)
+		glog.Info("Product successfully created:", id)
 		c.Abort()
 	}
 }

@@ -13,8 +13,8 @@ type Customer struct {
 
 	// CustomerId   uint   `json:"customerId" gorm:"primaryKey"`
 	Name    string `json:"name" gorm:"index"`
-	Mobile  string `json:"status"`
-	Address string `json:"status"`
+	Mobile  string `json:"mobile"`
+	Address string `json:"address"`
 	// LastModified string `json:"lastModifed"`
 }
 
